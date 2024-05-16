@@ -1,13 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 import '../styles/ToDoList.css'
 
-export function ToDoList() {
+
+function ToDoList({ type }) {
   const [formData, setFormData] = useState({ nombre: '', descripcion: '', fecha: '' });
-  const [entries, setEntries] = useState([
-    { nombre: 'Tarea 1', descripcion: 'Descripción de la tarea 1', fecha: '2024-05-01' },
-    { nombre: 'Tarea 2', descripcion: 'Descripción de la tarea 2', fecha: '2024-05-02' },
-  ]);
+
+  const initialEntriesByType = {
+    tareas: [
+      { nombre: 'Tarea 1', descripcion: 'Descripción de la tarea 1', fecha: '2024-05-01' },
+      { nombre: 'Tarea 2', descripcion: 'Descripción de la tarea 2', fecha: '2024-05-02' }
+    ],
+    metas: [
+      { nombre: 'Meta 1', descripcion: 'Descripción de la meta 1', fecha: '2024-05-01' },
+      { nombre: 'Meta 2', descripcion: 'Descripción de la meta 2', fecha: '2024-05-02' }
+    ]
+  };
+
+
+  const localStorageKey = `entries_${type}`;
+
+  const loadInitialEntries = () => {
+    const savedEntries = localStorage.getItem(localStorageKey);
+    return savedEntries ? JSON.parse(savedEntries) : initialEntriesByType[type];
+  };
+
+  const [entries, setEntries] = useState(loadInitialEntries);
+
+  useEffect(() => {
+    setEntries(loadInitialEntries());
+  }, [type]);
+
+  useEffect(() => {
+    localStorage.setItem(localStorageKey, JSON.stringify(entries));
+  }, [entries, localStorageKey]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -26,11 +53,11 @@ export function ToDoList() {
   };
 
   return (
-    <Container>
+    <Container className="full-height">
       <Row>
-        <Col md={6}>
-          <h2>Agregar</h2>
-          <Form onSubmit={handleSubmit}>
+        <Col xs={12} md={6}>
+          <h2>Agregar {type === 'tareas' ? 'Tarea' : 'Meta'}</h2>
+          <Form onSubmit={handleSubmit} className='form'>
             <Form.Group controlId="nombre">
               <Form.Label>Nombre</Form.Label>
               <Form.Control type="text" name="nombre" value={formData.nombre} onChange={handleChange} />
@@ -43,21 +70,23 @@ export function ToDoList() {
               <Form.Label>Fecha</Form.Label>
               <Form.Control type="date" name="fecha" value={formData.fecha} onChange={handleChange} />
             </Form.Group>
-            <Button variant="primary" type="submit" className="btnAdd">
-              Agregar
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'center' }}> {}
+              <Button variant="primary" type="submit" className="primary-button"> {}
+                Agregar
+              </Button>
+            </div>
           </Form>
         </Col>
 
-        <Col md={6}>
-          <h2>Entradas</h2>
+        <Col xs={12} md={6}>
+          <h2>Entradas de {type === 'tareas' ? 'Tareas' : 'Metas'}</h2>
           {entries.map((entry, index) => (
             <Card key={index} className="mb-3">
               <Card.Body>
                 <Card.Title>Nombre: {entry.nombre}</Card.Title>
-                <Card.Text>Descripción:{entry.descripcion}</Card.Text>
+                <Card.Text>Descripción: {entry.descripcion}</Card.Text>
                 <Card.Text>Fecha: {entry.fecha}</Card.Text>
-                <Button variant="danger" onClick={() => handleRemove(index)}>
+                <Button variant="primary" className="primary-button" onClick={() => handleRemove(index)}>
                   Remover
                 </Button>
               </Card.Body>
@@ -68,3 +97,5 @@ export function ToDoList() {
     </Container>
   );
 }
+
+export default ToDoList;
