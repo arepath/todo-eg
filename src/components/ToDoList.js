@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
-import { addGoal, removeGoal, initGoals } from '../store/reducers/goalReducer';
-import { addTask, removeTask, initTasks } from '../store/reducers/taskReducer';
+import { initGoals } from '../store/reducers/goalReducer';
+import { initTasks } from '../store/reducers/taskReducer';
 import '../styles/ToDoList.scss'
 
 function ToDoList({ type }) {
@@ -55,19 +55,73 @@ function ToDoList({ type }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (type === 'metas') {
-      dispatch(addGoal(formData));
-      setFormData({ nombre: '', descripcion: '', fecha: '' });
+      fetch("http://localhost:3001/goal/addGoal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "123456"
+        },
+        body: JSON.stringify(formData),
+      })
+      .then(response => response.json())
+      .then(data => {
+        dispatch(initGoals(data));
+        setFormData({ nombre: '', descripcion: '', fecha: '' });
+      })
+      .catch(error => {
+        console.error("Error adding goal:", error);
+      });
     } else if (type === 'tareas') {
-      dispatch(addTask(formData));
-      setFormData({ nombre: '', descripcion: '', fecha: '' });
+      fetch("http://localhost:3001/task/addTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "123456"
+        },
+        body: JSON.stringify(formData),
+      })
+      .then(response => response.json())
+      .then(data => {
+        dispatch(initTasks(data));
+        setFormData({ nombre: '', descripcion: '', fecha: '' });
+      })
+      .catch(error => {
+        console.error("Error adding task:", error);
+      });
     }
   };
 
   const handleRemove = (id) => {
     if (type === 'metas') {
-      dispatch(removeGoal(id));
+      fetch(`http://localhost:3001/goal/deleteGoal/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "123456"
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        dispatch(initGoals(data));
+      })
+      .catch(error => {
+        console.error("Error deleting goal:", error);
+      });
     } else if (type === 'tareas') {
-      dispatch(removeTask(id));
+      fetch(`http://localhost:3001/task/deleteTask/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "123456"
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        dispatch(initTasks(data));
+      })
+      .catch(error => {
+        console.error("Error deleting task:", error);
+      });
     }
   };
 
