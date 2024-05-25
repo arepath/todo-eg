@@ -1,15 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import './index.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import reportWebVitals from './reportWebVitals';
+import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import store from './store/index';
 import ToDoList from './components/ToDoList';
 import Header from './components/Header';
+import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  <Provider store={store}>
     <Router>
       <Header />
       <Routes>
@@ -18,7 +20,7 @@ root.render(
         <Route path="/metas" element={<ToDoList type="metas" />} />
       </Routes>
     </Router>
-  </React.StrictMode>
+  </Provider>
 );
 
 reportWebVitals();
